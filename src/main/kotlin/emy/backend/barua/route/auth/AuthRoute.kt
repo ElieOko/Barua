@@ -1,6 +1,6 @@
 package emy.backend.barua.route.auth
 
-import emy.backend.barua.route.GlobalRoute
+import emy.backend.barua.route.*
 
 object AuthRoute {
     const val REGISTER = "${GlobalRoute.AUTH}/${AuthFeatures.REGISTER_PATH}"

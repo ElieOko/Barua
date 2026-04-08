@@ -1,6 +1,6 @@
 package emy.backend.barua.route.account
 
-import emy.backend.barua.route.GlobalRoute
+import emy.backend.barua.route.*
 
 object AccountScope{
     const val PUBLIC = "${GlobalRoute.PUBLIC}/${AccountFeatures.ACCOUNT_PATH}"

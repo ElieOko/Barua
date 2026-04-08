@@ -1,6 +1,6 @@
 package emy.backend.barua.route.actor
 
-import emy.backend.barua.route.GlobalRoute
+import emy.backend.barua.route.*
 
 object CitoyenScope{
     const val PUBLIC = "${GlobalRoute.PUBLIC}/${ActorFeatures.MEMBER_PATH}"
