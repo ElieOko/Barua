@@ -21,4 +21,9 @@ class CountryService(
         return result.toDomain()
     }
     suspend fun findAllCountry() = repository.findAll().map { it.toDomain() }.toList()
+
+    suspend fun findByIdCountry(id: Long?): Country? {
+        val data = if (id == null) null else repository.findById(id)
+        return data?.toDomain()
+    }
 }

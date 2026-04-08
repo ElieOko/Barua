@@ -1,0 +1,17 @@
+package emy.backend.barua.app.user.infrastructure.persistance.entities
+
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
+
+@Table(name = "ministers")
+class MinisterEntity(
+    @Id @Column("id")
+    val ministerId : Long,
+    @Column("nom")
+    val nom : String,
+    @Column("description")
+    val description : String? = null,
+    @Column("isActive")
+    val isActive : Boolean = true,
+)
