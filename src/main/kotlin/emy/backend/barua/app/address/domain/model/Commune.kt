@@ -1,0 +1,8 @@
+package emy.backend.barua.app.address.domain.model
+
+data class Commune(
+    var communeId   : Long? = null,
+    val district  : Long? = null,
+    val quartiers : List<Quartier?> = emptyList(),
+    val name : String
+)
