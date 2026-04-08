@@ -3,29 +3,32 @@ package emy.backend.barua.app.address.infrastructure.controller
 import emy.backend.barua.app.address.application.service.*
 import emy.backend.barua.app.address.domain.model.*
 import emy.backend.barua.app.address.domain.model.request.*
+import emy.backend.barua.route.*
+import emy.backend.barua.route.address.*
 import emy.backend.barua.security.monitoring.*
-import emy.backend.barua.utils.Mode
-import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.validation.Valid
-import org.springframework.context.annotation.Profile
+import emy.backend.barua.utils.*
+import io.swagger.v3.oas.annotations.tags.*
+import jakarta.validation.*
+import org.springframework.context.annotation.*
 import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
-import jakarta.servlet.http.HttpServletRequest
-import kotlinx.coroutines.coroutineScope
+import jakarta.servlet.http.*
+import kotlinx.coroutines.*
 
 @Tag(name = "District", description = "Gestion des districts")
 @RestController
-@RequestMapping("api")
+@RequestMapping("${GlobalRoute.ROOT}/{version}")
 @Profile(Mode.DEV)
 class DistrictController(
     private val service : DistrictService,
     private val cityService: CityService,
     private val sentry: SentryService,
 ) {
-    @PostMapping("/{version}/${DistrictScope.PROTECTED}",consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(DistrictScope.PROTECTED,consumes = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun createDistrict(
-       httpRequest: HttpServletRequest,
-       @Valid @RequestBody request: DistrictRequest
+        httpRequest: HttpServletRequest,
+        @Valid @RequestBody request: DistrictRequest,
+        @PathVariable version: String
     ): ResponseEntity<out Map<String, Any?>> {
         val startNanos = System.nanoTime()
         try {
@@ -58,8 +61,10 @@ class DistrictController(
         }
     }
 
-    @GetMapping("/{version}/${DistrictScope.PUBLIC}",produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getAllDistrict(request: HttpServletRequest) = coroutineScope {
+    @GetMapping(DistrictScope.PUBLIC,produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getAllDistrict(
+        request: HttpServletRequest,
+        @PathVariable version: String) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             val data = service.findAllDistrict()

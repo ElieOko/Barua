@@ -1,6 +1,6 @@
 package emy.backend.barua.app.user.domain.models
 
-import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.*
 
 data class StateCertification(
     @NotNull

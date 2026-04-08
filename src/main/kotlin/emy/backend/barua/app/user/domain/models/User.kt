@@ -1,12 +1,8 @@
 package emy.backend.barua.app.user.domain.models
 
-import jakarta.validation.constraints.FutureOrPresent
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Null
-import jakarta.validation.constraints.Size
-import emy.backend.barua.app.user.domain.models.request.AccountRequest
-import java.time.LocalDateTime
+import jakarta.validation.constraints.*
+import emy.backend.barua.app.user.domain.models.request.*
+import java.time.*
 
 data class User(
     @Null

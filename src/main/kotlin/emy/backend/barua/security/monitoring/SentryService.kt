@@ -1,8 +1,8 @@
 package emy.backend.barua.security.monitoring
 
-import io.sentry.Sentry
+import io.sentry.*
 import io.sentry.metrics.*
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.*
 
 @Service
 class SentryService {

@@ -7,6 +7,8 @@ import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
 import emy.backend.barua.app.address.application.service.*
 import emy.backend.barua.app.address.domain.model.*
+import emy.backend.barua.route.*
+import emy.backend.barua.route.address.*
 import emy.backend.barua.security.monitoring.*
 import emy.backend.barua.utils.*
 import jakarta.servlet.http.*
@@ -20,10 +22,9 @@ class CityController(
     private val sentry: SentryService,
 ) {
     @Operation(summary = "Liste de villes")
-    @GetMapping("/{version}/${CityScope.PUBLIC}",produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getAllCity(request: HttpServletRequest): ResponseEntity<Map<String, List<City?>>> {
+    @GetMapping(CityScope.PUBLIC,produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getAllCity(request: HttpServletRequest, @PathVariable version: String): ResponseEntity<Map<String, List<City?>>> {
         val startNanos = System.nanoTime()
-        GlobalRou
         try {
             val data = service.findAllCity()
             val response = mapOf("cities" to data)

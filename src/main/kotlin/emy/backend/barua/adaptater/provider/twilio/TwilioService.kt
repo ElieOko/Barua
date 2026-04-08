@@ -1,10 +1,9 @@
 package emy.backend.barua.adaptater.provider.twilio
 
-import com.twilio.rest.verify.v2.service.Verification
-import com.twilio.rest.verify.v2.service.VerificationCheck
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.slf4j.LoggerFactory
+import com.twilio.rest.verify.v2.service.*
+import org.springframework.beans.factory.annotation.*
+import org.springframework.stereotype.*
+import org.slf4j.*
 
 @Service
 class TwilioService(

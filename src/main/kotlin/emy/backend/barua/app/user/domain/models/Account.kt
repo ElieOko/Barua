@@ -1,6 +1,6 @@
 package emy.backend.barua.app.user.domain.models
 
-import emy.backend.barua.app.user.infrastructure.entities.AccountEntity
+import emy.backend.barua.app.user.infrastructure.entities.*
 
 data class Account(
     val id : Long? = null,

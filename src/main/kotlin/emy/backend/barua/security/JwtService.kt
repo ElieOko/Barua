@@ -1,14 +1,13 @@
 package emy.backend.barua.security
 
-import emy.backend.barua.utils.Mode
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Profile
-import org.springframework.http.HttpStatusCode
-import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
+import emy.backend.barua.utils.*
+import io.jsonwebtoken.*
+import io.jsonwebtoken.security.*
+import org.springframework.beans.factory.annotation.*
+import org.springframework.context.annotation.*
+import org.springframework.http.*
+import org.springframework.stereotype.*
+import org.springframework.web.server.*
 import java.util.*
 
 @Service
@@ -16,11 +15,9 @@ import java.util.*
 class JwtService(
     @Value("\${jwt.secret}") private val jwtSecret: String
 ) {
-
     private val secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret))
     private val accessTokenValidityMs = 30L * 24 * 60 * 60 * 1000L
     val refreshTokenValidityMs = 30L * 24 * 60 * 60 * 1000L
-
     private fun generateToken(
         userId: String,
         type: String,

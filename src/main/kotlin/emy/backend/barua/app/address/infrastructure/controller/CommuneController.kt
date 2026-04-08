@@ -1,33 +1,36 @@
 package emy.backend.barua.app.address.infrastructure.controller
 
 import emy.backend.barua.app.address.application.service.*
-import emy.backend.barua.app.address.domain.model.Commune
-import emy.backend.barua.app.address.domain.model.request.CommuneRequest
+import emy.backend.barua.app.address.domain.model.*
+import emy.backend.barua.app.address.domain.model.request.*
+import emy.backend.barua.route.*
+import emy.backend.barua.route.address.*
 import emy.backend.barua.security.monitoring.*
-import emy.backend.barua.utils.Mode
-import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.validation.Valid
+import emy.backend.barua.utils.*
+import io.swagger.v3.oas.annotations.tags.*
+import jakarta.validation.*
 import kotlinx.coroutines.coroutineScope
-import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.*
 import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
-import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.*
 
 @Tag(name = "Commune", description = "Gestion des communes")
 @RestController
-@RequestMapping("api")
+@RequestMapping("${GlobalRoute.ROOT}/{version}")
 @Profile(Mode.DEV)
 class CommuneController(
     private val service : CommuneService,
     private val districtService: DistrictService,
     private val sentry: SentryService,
 ) {
-    @PostMapping("/{version}/${CommuneScope.PROTECTED}",consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(CommuneScope.PROTECTED,consumes = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun createCommune(
        httpRequest: HttpServletRequest,
        @Valid @RequestBody request: CommuneRequest
     ): ResponseEntity<Map<String, Any>> = coroutineScope {
         val startNanos = System.nanoTime()
+
         try {
             val district = districtService.findByIdDistrict(request.districtId)
             if (district != null){
@@ -58,8 +61,7 @@ class CommuneController(
             )
         }
     }
-
-    @GetMapping("/{version}/${CommuneScope.PUBLIC}",produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(CommuneScope.PUBLIC,produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun getAllCommune(request: HttpServletRequest): ResponseEntity<Map<String, List<Commune>>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {

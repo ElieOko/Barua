@@ -1,9 +1,9 @@
 package emy.backend.barua.security.monitoring
 
-import io.sentry.Sentry
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
-import jakarta.annotation.PostConstruct
+import io.sentry.*
+import org.springframework.beans.factory.annotation.*
+import org.springframework.stereotype.*
+import jakarta.annotation.*
 
 @Component
 class SentryInitializer(

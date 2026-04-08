@@ -1,7 +1,7 @@
 package emy.backend.barua
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
+import org.springframework.boot.autoconfigure.*
+import org.springframework.boot.*
 
 @SpringBootApplication
 class BaruaApplication
