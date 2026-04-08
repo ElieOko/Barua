@@ -42,6 +42,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework:spring-jdbc")
+	// sender mail
+	implementation("org.springframework.boot:spring-boot-starter-mail")
 	// Redis
 	implementation("org.springframework.boot:spring-boot-starter-session-data-redis")
     // @sentry
@@ -78,6 +80,8 @@ dependencies {
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
 	// redis
 	testImplementation("org.springframework.boot:spring-boot-starter-session-data-redis-test")
+	// TEST MAIL
+	testImplementation("org.springframework.boot:spring-boot-starter-mail-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-quartz-test")

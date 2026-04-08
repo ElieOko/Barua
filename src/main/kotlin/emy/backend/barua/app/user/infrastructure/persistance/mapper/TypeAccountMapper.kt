@@ -1,7 +1,7 @@
-package emy.backend.barua.app.user.infrastructure.mapper
+package emy.backend.barua.app.user.infrastructure.persistance.mapper
 
 import emy.backend.barua.app.user.domain.models.TypeAccount
-import emy.backend.barua.app.user.infrastructure.entities.TypeAccountEntity
+import emy.backend.barua.app.user.infrastructure.persistance.entities.TypeAccountEntity
 
 fun TypeAccountEntity.toDomain(): TypeAccount {
     val e = this

@@ -2,8 +2,8 @@ package emy.backend.barua.security
 
 import emy.backend.barua.app.user.application.services.*
 import emy.backend.barua.app.user.domain.models.*
-import emy.backend.barua.app.user.infrastructure.mapper.*
-import emy.backend.barua.app.user.infrastructure.repositories.*
+import emy.backend.barua.app.user.infrastructure.persistance.mapper.toDomain
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.UserRepository
 import org.springframework.security.core.context.*
 import org.springframework.stereotype.*
 import java.security.*

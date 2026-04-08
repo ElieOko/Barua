@@ -2,12 +2,12 @@ package emy.backend.barua.app.user.application.services
 
 import emy.backend.barua.app.user.domain.models.*
 import emy.backend.barua.app.user.domain.models.request.*
-import emy.backend.barua.app.user.infrastructure.entities.*
-import emy.backend.barua.app.user.infrastructure.mapper.*
+import emy.backend.barua.app.user.infrastructure.persistance.entities.UserEntity
+import emy.backend.barua.app.user.infrastructure.persistance.mapper.toDomain
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.UserRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.slf4j.*
-import emy.backend.barua.app.user.infrastructure.repositories.*
 import emy.backend.barua.security.*
 import emy.backend.barua.utils.*
 import org.springframework.context.annotation.*

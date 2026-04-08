@@ -1,6 +1,6 @@
-package emy.backend.barua.app.user.infrastructure.repositories
+package emy.backend.barua.app.user.infrastructure.persistance.repositories
 
-import emy.backend.barua.app.user.infrastructure.entities.AccountEntity
+import emy.backend.barua.app.user.infrastructure.persistance.entities.AccountEntity
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 

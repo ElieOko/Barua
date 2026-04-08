@@ -1,8 +1,8 @@
-package emy.backend.barua.app.user.infrastructure.mapper
+package emy.backend.barua.app.user.infrastructure.persistance.mapper
 
 import emy.backend.barua.app.user.domain.models.User
 import emy.backend.barua.app.user.domain.models.UserDto
-import emy.backend.barua.app.user.infrastructure.entities.UserEntity
+import emy.backend.barua.app.user.infrastructure.persistance.entities.UserEntity
 import kotlin.time.ExperimentalTime
 
 fun UserEntity.toDomain(): UserDto {

@@ -1,6 +1,6 @@
-package emy.backend.barua.app.user.infrastructure.repositories
+package emy.backend.barua.app.user.infrastructure.persistance.repositories
 
-import emy.backend.barua.app.user.infrastructure.entities.AccountUserEntity
+import emy.backend.barua.app.user.infrastructure.persistance.entities.AccountUserEntity
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

@@ -1,18 +1,15 @@
-package emy.backend.barua.app.user.infrastructure.entities
+package emy.backend.barua.app.user.infrastructure.persistance.entities
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import org.springframework.data.annotation.Id
-import org.springframework.data.relational.core.mapping.Column
-import org.springframework.data.relational.core.mapping.Table
-import java.time.LocalDateTime
+import com.fasterxml.jackson.annotation.*
+import org.springframework.data.annotation.*
+import org.springframework.data.relational.core.mapping.*
+import java.time.*
 
 @Table(name = "users")
 class UserEntity(
     @Id
     @Column("id")
     val userId: Long? = null,
-    @Column("city")
-    var city: String? = null,
     @JsonIgnore
     @Column("password")
     var password: String? = "",
@@ -20,16 +17,24 @@ class UserEntity(
     var email: String? = null,
     @Column("username")
     var username: String? = null,
+    @Column("first_name")
+    var firstName: String,
+    @Column("last_name")
+    var lastName: String,
+    @Column("full_name")
+    val fullName: String,
+    @Column("from_service")
+    var fromService : String? = null,
     @Column("is_premium")
     var isPremium: Boolean = false,
     @Column("is_certified")
     var isCertified: Boolean = false,
     @Column("is_lock")
     var isLock: Boolean = false,
+    @Column("is_valid")
+    var isValid: Boolean = false,
     @Column("phone")
     var phone: String?=null,
-    @Column("country")
-    var country: String? = "Democratic Republic of the Congo",
     @Column("created_at")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 )

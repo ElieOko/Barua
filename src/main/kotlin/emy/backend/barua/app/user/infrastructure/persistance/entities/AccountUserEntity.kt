@@ -1,4 +1,4 @@
-package emy.backend.barua.app.user.infrastructure.entities
+package emy.backend.barua.app.user.infrastructure.persistance.entities
 
 import emy.backend.barua.app.user.domain.models.AccountUser
 import org.springframework.data.annotation.Id

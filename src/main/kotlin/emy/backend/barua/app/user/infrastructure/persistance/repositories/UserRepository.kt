@@ -1,6 +1,6 @@
-package emy.backend.barua.app.user.infrastructure.repositories
+package emy.backend.barua.app.user.infrastructure.persistance.repositories
 
-import emy.backend.barua.app.user.infrastructure.entities.UserEntity
+import emy.backend.barua.app.user.infrastructure.persistance.entities.UserEntity
 import org.springframework.data.r2dbc.repository.Modifying
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

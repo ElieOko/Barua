@@ -1,4 +1,4 @@
-package emy.backend.barua.app.user.infrastructure.entities
+package emy.backend.barua.app.user.infrastructure.persistance.entities
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column

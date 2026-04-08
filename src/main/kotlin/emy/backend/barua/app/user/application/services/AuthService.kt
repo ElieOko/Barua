@@ -3,9 +3,11 @@ package emy.backend.barua.app.user.application.services
 import emy.backend.barua.adaptater.provider.twilio.*
 import emy.backend.barua.app.user.domain.models.*
 import emy.backend.barua.app.user.domain.models.request.*
-import emy.backend.barua.app.user.infrastructure.entities.*
-import emy.backend.barua.app.user.infrastructure.mapper.*
-import emy.backend.barua.app.user.infrastructure.repositories.*
+import emy.backend.barua.app.user.infrastructure.persistance.entities.AccountDTO
+import emy.backend.barua.app.user.infrastructure.persistance.entities.UserEntity
+import emy.backend.barua.app.user.infrastructure.persistance.mapper.toDomain
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.RefreshTokenRepository
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.UserRepository
 import emy.backend.barua.security.*
 import emy.backend.barua.utils.*
 import kotlinx.coroutines.*
@@ -39,41 +41,25 @@ class AuthService(
         val refreshToken: String
     )
     @OptIn(ExperimentalTime::class)
-    suspend fun register(user: User, accountItems: List<AccountRequest>): Pair<UserDto?, String> {
-        var phone = normalizeAndValidatePhoneNumberUniversal(user.phone)
+    suspend fun register(user: User):UserDto?{
         var state = false
-            if (user.phone != null) {
-                if (user.phone.isNotEmpty()){
-                    phone =  normalizeAndValidatePhoneNumberUniversal(user.phone) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ce numero n'est pas valide.")
-                    if(userRepository.findByPhoneOrEmail(phone) != null) throw ResponseStatusException(HttpStatus.CONFLICT, "Ce numéro de téléphone est déjà associé à un compte existant.")
-                    state = true
-                }
-            }
         if (user.email != null){
             if(user.email.isNotEmpty()){
                 if(userRepository.findByPhoneOrEmail(user.email) != null) throw ResponseStatusException(HttpStatus.CONFLICT, "Cette adresse mail est déjà associé à un compte existant.")
                 state = true
             }
         }
-        if (!state) throw ResponseStatusException(HttpStatus.CONFLICT, "Vous devez renseigner l'email ou le phone.")
+        if (!state) throw ResponseStatusException(HttpStatus.CONFLICT, "Vous devez renseigner l'email")
         val entity = UserEntity(
             password = hashEncoder.encode(user.password),
             email = user.email,
-            username = user.username,
-            phone = phone,
+            phone = user.phone,
             city = user.city,
-            country = user.country
         )
         log.info("Creating user ${user.userId}")
         val savedEntity = userRepository.save(entity)
-        accountItems.forEach {
-            serviceMultiAccount.save(AccountUser(userId = savedEntity.userId!!, accountId = it.typeAccount))
-        }
-
-        val newAccessToken = jwtService.generateAccessToken(savedEntity.userId!!.toHexString())
         val userData : UserDto = savedEntity.toDomain()
-        val result = Pair(userData,newAccessToken)
-        return result
+        return userData
     }
     suspend fun login(identifier: String, password: String): Pair<TokenPair, UserFullDTO>  =
         coroutineScope {
@@ -87,7 +73,11 @@ class AuthService(
             val accounts = serviceMultiAccount.getAll().filter { it.userId == user.userId }.toList()
             val accountMultiple: List<AccountDTO> =  accounts.map {
                 val data = accountService.findByIdAccount(it.accountId)
-                AccountDTO(id = data.id, name = data.name, typeAccount = typeAccountService.findByIdTypeAccount(data.typeAccountId))
+                AccountDTO(
+                    id = data.id,
+                    name = data.name,
+                    typeAccount = typeAccountService.findByIdTypeAccount(data.typeAccountId)
+                )
             }.toList()
             val profile = userRepository.findById(user.userId)
 //            storeRefreshToken(user.userId, newRefreshToken)
