@@ -1,16 +1,15 @@
-package emy.backend.lawapp50.app.user.infrastructure.controller
+package emy.backend.barua.app.user.infrastructure.controller
 
-import emy.backend.lawapp50.app.user.application.service.*
-import emy.backend.lawapp50.app.user.domain.model.*
-import emy.backend.lawapp50.app.user.domain.model.request.*
-import emy.backend.lawapp50.app.user.domain.model.toDomain
-import emy.backend.lawapp50.app.user.infrastructure.persistance.repository.*
-import emy.backend.lawapp50.route.auth.*
-import emy.backend.lawapp50.route.auth.AuthRoute.LOGIN_AUTH_GOOGLE
-import emy.backend.lawapp50.security.*
-import emy.backend.lawapp50.security.monitoring.*
-import emy.backend.lawapp50.utils.*
-import emy.backend.lawapp50.utils.mail.*
+import emy.backend.barua.adaptater.provider.redis.*
+import emy.backend.barua.app.user.application.services.*
+import emy.backend.barua.app.user.domain.models.*
+import emy.backend.barua.app.user.domain.models.request.*
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.*
+import emy.backend.barua.route.auth.*
+import emy.backend.barua.security.*
+import emy.backend.barua.security.monitoring.*
+import emy.backend.barua.utils.*
+import emy.backend.barua.utils.mail.*
 import io.swagger.v3.oas.annotations.*
 import io.swagger.v3.oas.annotations.tags.*
 import jakarta.servlet.http.*
@@ -22,7 +21,6 @@ import org.springframework.http.*
 import org.springframework.security.core.*
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.*
-import server.web.casa.adaptater.provide.redis.*
 
 const val ROUTE_REGISTER = AuthRoute.REGISTER
 const val ROUTE_LOGIN = AuthRoute.LOGIN
@@ -53,7 +51,7 @@ class AuthController(
             if (!state) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mot de passe invalide.")
             val data = authService.register(userSystem)
             val generator = 6.generateOtp()
-            redis.storeRedisData(data.email!!,generator,1140)
+            redis.storeRedisData(data?.email!!,generator,1140)
             val sendState = senderMailAuth.sendMail(to = data.email!!,otp = generator, time =  "4")
             log.info("$sendState************")
             val response = mapOf(
@@ -106,7 +104,7 @@ class AuthController(
     }
 
     @PostMapping("/api/{version}/protected/token/refresh")
-    suspend fun refresh(request: HttpServletRequest, @RequestBody body: RefreshRequest): AuthService.TokenPair = coroutineScope {
+    suspend fun refresh(request: HttpServletRequest, @RequestBody body: RefreshRequest, @PathVariable version: String): AuthService.TokenPair = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             authService.refresh(body.refreshToken)
@@ -163,16 +161,13 @@ class AuthController(
     fun redirectToGoogle(response: HttpServletResponse) {
         response.sendRedirect("/oauth2/authorization/google")
     }
-//    @GetMapping(LOGIN_AUTH_GOOGLE)
-//    fun codeGoogle(response: HttpServletResponse) {
-//
-//    }
+
     @Operation(summary = "OTP validate account")
     @PostMapping("/api/{version}/public/otp/validate")
     suspend fun validationAccountOTP(
-        request: HttpServletRequest,
-        @RequestBody @Valid identifier : VerifyRequest
-    ) = coroutineScope {
+    request: HttpServletRequest,
+    @RequestBody @Valid identifier : VerifyRequest, @PathVariable version: String
+) = coroutineScope {
         val startNanos = System.nanoTime()
         val redis = RedisStorage()
         try {
@@ -202,7 +197,7 @@ class AuthController(
     @Operation(summary = "OTP activation send code")
     @PostMapping("/api/{version}/public/otp/generate")
     suspend fun generateKeyOTP(request: HttpServletRequest,
-        @RequestBody @Valid user : IdentifiantRequest
+                               @RequestBody @Valid user : IdentifiantRequest, @PathVariable version: String
     ): ResponseEntity<Map<String, String?>> = coroutineScope {
         val startNanos = System.nanoTime()
         val redis = RedisStorage()
@@ -211,7 +206,7 @@ class AuthController(
             val result = userRepository.findByPhoneOrEmail(user.identifier)?:throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Identifiant invalide !.")
             val generator = 6.generateOtp()
             redis.storeRedisData(user.identifier,generator,1140)
-            val sendState = senderMailAuth.sendMail(to = result.email!!,otp = generator, time =  "4")
+            senderMailAuth.sendMail(to = result.email!!,otp = generator, time =  "4")
             val message = mapOf("message" to "Un code de validation a été envoyé cet adresse")
              ResponseEntity.ok(message)
         } finally {
@@ -252,10 +247,10 @@ class AuthController(
     @Operation(summary = "certification user")
     @PutMapping("/api/{version}/protected/certification/{userId}")
     suspend fun goCertification(
-        request: HttpServletRequest,
-        @PathVariable("userId") userId : Long,
-        @RequestBody @Valid certification : CertificationState
-    )  = coroutineScope {
+    request: HttpServletRequest,
+    @PathVariable userId : Long,
+    @RequestBody @Valid certification : CertificationState, @PathVariable version: String
+)  = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             val session = auth.user()
@@ -291,7 +286,7 @@ class AuthController(
     @Operation(summary = "Reset password ")
     @PutMapping("/api/{version}/protected/reset/password")
     suspend fun resetPassword(request: HttpServletRequest,
-        @RequestBody @Valid user : UserPassword
+                              @RequestBody @Valid user : UserPassword, @PathVariable version: String
     ) : ResponseEntity<Map<String, String>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
@@ -316,7 +311,7 @@ class AuthController(
     @Operation(summary = "Change password utilisateur")
     @PutMapping("/api/{version}/protected/change/password")
     suspend fun updateUser(request: HttpServletRequest,
-        @RequestBody @Valid user : UserPassword
+                           @RequestBody @Valid user : UserPassword, @PathVariable version: String
     ) : ResponseEntity<Map<String, String>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
@@ -340,7 +335,7 @@ class AuthController(
 
     @Operation(summary = "Delete Account User")
     @DeleteMapping("/api/{version}/protected/users/delete/user")
-    suspend fun lockAccount(request: HttpServletRequest): ResponseEntity<Map<String, String>> = coroutineScope {
+    suspend fun lockAccount(request: HttpServletRequest, @PathVariable version: String): ResponseEntity<Map<String, String>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             val userId = auth.user()?.first?.userId
@@ -362,7 +357,7 @@ class AuthController(
 
     @Operation(summary = "Recovery Account User")
     @PutMapping("/api/{version}/protected/recovery/user/{id}")
-    suspend fun unlockAccount(request: HttpServletRequest,@PathVariable("id") id : Long): ResponseEntity<Map<String, String>> = coroutineScope {
+    suspend fun unlockAccount(request: HttpServletRequest, @PathVariable id : Long, @PathVariable version: String): ResponseEntity<Map<String, String>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             val session = auth.user()

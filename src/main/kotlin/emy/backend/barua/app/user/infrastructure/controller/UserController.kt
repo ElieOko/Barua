@@ -1,43 +1,38 @@
-package emy.backend.lawapp50.app.user.infrastructure.controller
+package emy.backend.barua.app.user.infrastructure.controller
 
-import emy.backend.lawapp50.app.user.application.service.*
-import emy.backend.lawapp50.app.user.domain.model.request.*
-import emy.backend.lawapp50.security.*
-import emy.backend.lawapp50.security.monitoring.*
-import emy.backend.lawapp50.utils.*
+import emy.backend.barua.app.user.application.services.*
+import emy.backend.barua.app.user.domain.models.request.*
+import emy.backend.barua.route.*
+import emy.backend.barua.security.*
+import emy.backend.barua.security.monitoring.*
+import emy.backend.barua.utils.*
 import io.swagger.v3.oas.annotations.*
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.*
 import jakarta.validation.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import org.slf4j.*
 import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Utilisateur", description = "Gestion des utilisateurs")
+@Tag(name = "User", description = "Managements Users")
 @RestController
-@RequestMapping("api")
+@RequestMapping("${GlobalRoute.ROOT}/{version}")
 class UserController(
     private val userService : UserService,
     private val auth: Auth,
     private val sentry : SentryService
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
-    @Operation(summary = "Liste des utilisateurs")
-    @GetMapping("/{version}/protected/users")
-    suspend fun getListUser(request: HttpServletRequest) = coroutineScope {
+    @Operation(summary = "List of users")
+    @GetMapping("/protected/users")
+    suspend fun getListUser(request: HttpServletRequest, @PathVariable version: String) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             val session = auth.user()
             val state: Boolean? = session?.second?.find{ true }
             when (state) {
-                true -> {
-                    val data = userService.findAllUser().toList()
-                    ApiResponse(data)
-                }
-                false,null -> {
-                    ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))}
+                true -> ApiResponse(userService.findAllUser().toList())
+                else -> ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
             }
         } finally {
             sentry.callToMetric(
@@ -52,22 +47,20 @@ class UserController(
         }
     }
 
-    @Operation(summary = "Detail utilisateur")
-    @GetMapping("/{version}/protected/users/{id}")
+    @Operation(summary = "Detail user")
+    @GetMapping("/protected/users/{id}")
     suspend fun getUser(
         request: HttpServletRequest,
-        @PathVariable("id") id : Long
+        @PathVariable id:Long,
+        @PathVariable version:String
     ) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             val session = auth.user()
             val state: Boolean? = session?.second?.find{ true }
             when (state) {
-                true -> {
-                    val data = userService.findIdUser(id)
-                    ResponseEntity.ok().body(data)}
-                false,null ->{
-                    ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))}
+                true -> ResponseEntity.ok().body(userService.findIdUser(id))
+                else -> ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
             }
         } finally {
             sentry.callToMetric(
@@ -83,11 +76,12 @@ class UserController(
     }
 
     @Operation(summary = "Modification utilisateur")
-    @PutMapping("/{version}/protected/users/{id}")
+    @PutMapping("/protected/users/{id}")
     suspend fun updateUser(
         request: HttpServletRequest,
         @PathVariable("id") userId : Long,
-        @RequestBody @Valid user : UserRequestChange
+        @RequestBody @Valid user : UserRequestChange,
+        @PathVariable version: String
     ) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
@@ -111,12 +105,11 @@ class UserController(
         }
     }
 
-    @GetMapping("/{version}/private/users")
-    suspend fun getAllUserPrivate(request: HttpServletRequest) = coroutineScope {
+    @GetMapping("/private/users")
+    suspend fun getAllUserPrivate(request: HttpServletRequest, @PathVariable version: String) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            val data = userService.findAllUser().toList()
-            ApiResponse(data)
+            ApiResponse(userService.findAllUser().toList())
         } finally {
             sentry.callToMetric(
                 MetricModel(
@@ -128,6 +121,5 @@ class UserController(
                 )
             )
         }
-
     }
 }

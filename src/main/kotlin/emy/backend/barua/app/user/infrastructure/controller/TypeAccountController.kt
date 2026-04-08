@@ -1,30 +1,29 @@
-package emy.backend.lawapp50.app.user.infrastructure.controller
+package emy.backend.barua.app.user.infrastructure.controller
 
-import emy.backend.lawapp50.app.user.application.service.TypeAccountService
-import emy.backend.lawapp50.app.user.domain.model.TypeAccount
-import io.swagger.v3.oas.annotations.Operation
+import emy.backend.barua.app.user.application.services.*
+import emy.backend.barua.app.user.domain.models.*
+import emy.backend.barua.route.*
+import emy.backend.barua.route.account.*
+import emy.backend.barua.security.monitoring.*
+import emy.backend.barua.utils.*
+import io.swagger.v3.oas.annotations.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
-import org.springframework.context.annotation.Profile
-import org.springframework.http.MediaType
+import org.springframework.context.annotation.*
+import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
-import emy.backend.lawapp50.route.account.AccountTypeScope
-import emy.backend.lawapp50.utils.ApiResponse
-import emy.backend.lawapp50.security.monitoring.SentryService
-import jakarta.servlet.http.HttpServletRequest
-import emy.backend.lawapp50.security.monitoring.MetricModel
-
+import jakarta.servlet.http.*
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("${GlobalRoute.ROOT}/{version}")
 @Profile("dev")
 class TypeAccountController(
     private val service: TypeAccountService,
     private val sentry: SentryService,
 ) {
-    @Operation(summary = "Liste de Type Accounts")
-    @GetMapping("/{version}/${AccountTypeScope.PUBLIC}",produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun getAllTypeAccountE(request: HttpServletRequest): ApiResponse<List<TypeAccount>> = coroutineScope {
+    @Operation(summary = "List Of TypeAccounts")
+    @GetMapping(AccountTypeScope.PUBLIC,produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getAllTypeAccountE(request: HttpServletRequest, @PathVariable version: String): ApiResponse<List<TypeAccount>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             ApiResponse(service.getAll().toList())
