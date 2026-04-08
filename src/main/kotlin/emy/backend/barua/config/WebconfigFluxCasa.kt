@@ -1,9 +1,8 @@
 package emy.backend.barua.config
 
-import org.springframework.context.annotation.Configuration
-import org.springframework.http.MediaType
-import org.springframework.web.reactive.config.ApiVersionConfigurer
-import org.springframework.web.reactive.config.WebFluxConfigurer
+import org.springframework.context.annotation.*
+import org.springframework.http.*
+import org.springframework.web.reactive.config.*
 
 @Configuration
 class WebConfiguration : WebFluxConfigurer {

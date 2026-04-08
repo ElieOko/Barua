@@ -1,9 +1,9 @@
 package emy.backend.barua.config
 
-import org.springframework.context.annotation.Configuration
-import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.boot.flyway.autoconfigure.FlywayProperties
-import org.springframework.boot.r2dbc.autoconfigure.R2dbcProperties
+import org.springframework.context.annotation.*
+import org.springframework.boot.context.properties.*
+import org.springframework.boot.flyway.autoconfigure.*
+import org.springframework.boot.r2dbc.autoconfigure.*
 
 @Configuration
 @EnableConfigurationProperties(

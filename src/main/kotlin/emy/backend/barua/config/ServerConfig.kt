@@ -1,21 +1,18 @@
 package emy.backend.barua.config
 
-import emy.backend.barua.exception.CustomAccessDeniedHandler
-import emy.backend.barua.exception.CustomAuthEntryPoint
-import emy.backend.barua.security.JwtAuthFilter
-import emy.backend.barua.utils.Mode
-import jakarta.annotation.PostConstruct
-import org.slf4j.LoggerFactory
+import emy.backend.barua.exception.*
+import emy.backend.barua.security.*
+import emy.backend.barua.utils.*
+import jakarta.annotation.*
+import org.slf4j.*
 import org.springframework.context.annotation.*
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-
+import org.springframework.security.config.annotation.web.builders.*
+import org.springframework.security.config.annotation.web.configuration.*
+import org.springframework.security.config.http.*
+import org.springframework.security.web.*
+import org.springframework.security.web.authentication.*
+import org.springframework.web.reactive.function.client.*
+import org.springframework.web.servlet.config.annotation.*
 
 @Profile(Mode.DEV)
 @EnableWebSecurity
