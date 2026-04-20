@@ -10,6 +10,13 @@ data class Document(
     val description: String? = null,
     val isActive: Boolean = true,
 )
+data class DocumentDAO(
+    var id: Long? = null,
+    val type: DocumentType,
+    val title: String,
+    val code: String? = null,
+    val description: String? = null,
+)
 
 fun Document.toEntity() = DocumentEntity(
     id = this.documentId,
