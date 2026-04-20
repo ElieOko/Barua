@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("${GlobalRoute.ROOT}/{version}/")
 @Profile(Mode.DEV)
-class TypeOrganismeController(
+class TypeOrganismController(
     private val service: TypeOrganismService,
     private val sentry: SentryService,
 ) {
