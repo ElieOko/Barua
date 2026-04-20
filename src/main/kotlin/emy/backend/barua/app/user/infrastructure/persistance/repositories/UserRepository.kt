@@ -7,7 +7,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface UserRepository : CoroutineCrudRepository<UserEntity, Long> {
 
-    @Query("SELECT * FROM users WHERE email = :identifier OR phone = :identifier AND is_lock = false")
+    @Query("SELECT * FROM users WHERE (email = :identifier OR phone = :identifier) AND is_lock = false")
    suspend fun findByPhoneOrEmail(identifier: String) : UserEntity?
 
     @Modifying

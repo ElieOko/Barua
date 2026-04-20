@@ -4,8 +4,8 @@ import emy.backend.barua.adaptater.provider.twilio.*
 import emy.backend.barua.app.user.domain.models.*
 import emy.backend.barua.app.user.domain.models.request.*
 import emy.backend.barua.app.user.infrastructure.persistance.entities.AccountDTO
-import emy.backend.barua.app.user.infrastructure.persistance.entities.UserEntity
 import emy.backend.barua.app.user.infrastructure.persistance.mapper.toDomain
+import emy.backend.barua.app.user.infrastructure.persistance.mapper.toEntity
 import emy.backend.barua.app.user.infrastructure.persistance.repositories.RefreshTokenRepository
 import emy.backend.barua.app.user.infrastructure.persistance.repositories.UserRepository
 import emy.backend.barua.security.*
@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.*
 import org.springframework.web.server.*
 import java.security.*
 import java.util.*
-import kotlin.time.*
 //sudo docker run --name casa-db -e POSTGRES_PASSWORD=root -e POSTGRES_DB=testdb e- POSTGRES_USERNAME=postgres -p 5434:5432 -d postgres
 //https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04
 @Service
@@ -40,7 +39,6 @@ class AuthService(
         val accessToken: String,
         val refreshToken: String
     )
-    @OptIn(ExperimentalTime::class)
     suspend fun register(user: User):UserDto?{
         var state = false
         if (user.email != null){
@@ -50,12 +48,9 @@ class AuthService(
             }
         }
         if (!state) throw ResponseStatusException(HttpStatus.CONFLICT, "Vous devez renseigner l'email")
-        val entity = UserEntity(
-            password = hashEncoder.encode(user.password),
-            email = user.email,
-            phone = user.phone,
-            city = user.city,
-        )
+        val entity = user.toEntity().apply {
+            password = hashEncoder.encode(user.password)
+        }
         log.info("Creating user ${user.userId}")
         val savedEntity = userRepository.save(entity)
         val userData : UserDto = savedEntity.toDomain()

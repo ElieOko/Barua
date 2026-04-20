@@ -1,5 +1,6 @@
 package emy.backend.barua.config
 
+import org.flywaydb.core.Flyway
 import org.springframework.context.annotation.*
 import org.springframework.boot.context.properties.*
 import org.springframework.boot.flyway.autoconfigure.*
@@ -12,20 +13,20 @@ import org.springframework.boot.r2dbc.autoconfigure.*
 )
 class DatabaseConfig {
 
-//    @Bean(initMethod = "migrate")
-//    fun flyway(
-//        flywayProperties: FlywayProperties,
-//        r2dbcProperties: R2dbcProperties
-//    ): Flyway {
-//
-//        return Flyway.configure()
-//            .dataSource(
-//                "jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:5432/postgres",          // JDBC URL
-//                r2dbcProperties.username,
-//                r2dbcProperties.password
-//            )
-//            .locations(*flywayProperties.locations.toTypedArray())
-//            .baselineOnMigrate(true)
-//            .load()
-//    }
+    @Bean(initMethod = "migrate")
+    fun flyway(
+        flywayProperties: FlywayProperties,
+        r2dbcProperties: R2dbcProperties
+    ): Flyway {
+
+        return Flyway.configure()
+            .dataSource(
+                "jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:5432/postgres",          // JDBC URL
+                r2dbcProperties.username,
+                r2dbcProperties.password
+            )
+            .locations(*flywayProperties.locations.toTypedArray())
+            .baselineOnMigrate(true)
+            .load()
+    }
 }

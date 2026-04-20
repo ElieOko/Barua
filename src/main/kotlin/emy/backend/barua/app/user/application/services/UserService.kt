@@ -2,8 +2,8 @@ package emy.backend.barua.app.user.application.services
 
 import emy.backend.barua.app.user.domain.models.*
 import emy.backend.barua.app.user.domain.models.request.*
-import emy.backend.barua.app.user.infrastructure.persistance.entities.UserEntity
 import emy.backend.barua.app.user.infrastructure.persistance.mapper.toDomain
+import emy.backend.barua.app.user.infrastructure.persistance.mapper.toEntity
 import emy.backend.barua.app.user.infrastructure.persistance.repositories.UserRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -14,7 +14,6 @@ import org.springframework.context.annotation.*
 import org.springframework.http.*
 import org.springframework.stereotype.*
 import org.springframework.web.server.*
-import kotlin.time.*
 
 @Service
 @Profile(Mode.DEV)
@@ -25,16 +24,8 @@ class UserService(
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
     val name = "utilisateur"
-    @OptIn(ExperimentalTime::class)
     suspend fun createUser(user: User) : UserDto? {
-        val entityToSave = UserEntity(
-            password = user.password,
-            email = user.email,
-            phone = user.phone,
-            username = user.username,
-            city = user.city,
-            country = user.country
-        )
+        val entityToSave = user.toEntity()
         val savedEntity = repository.save(entityToSave)
         return savedEntity.toDomain()
     }
@@ -63,30 +54,34 @@ class UserService(
     }
 
 
-    @OptIn(ExperimentalTime::class)
     suspend fun updateUser(
         id: Long,
         user: UserRequestChange
     ): UserDto ?{
-      val userState =  repository.findById(id)
-      if (userState?.email == user.email) {
-          userState.city = user.city
+      val userState = repository.findById(id) ?: return null
+      if (userState.email == user.email) {
+          userState.phone = user.phone
+          userState.username = user.pseudo.ifBlank { userState.username }
+          userState.firstName = user.firstName
+          userState.lastName = user.lastName
+          userState.fullName = "${user.firstName.trim()} ${user.lastName.trim()}".trim()
           val updatedUser = repository.save(userState)
           return updatedUser.toDomain()
       }
-      else{
-          val state = repository.findByPhoneOrEmail(user.email)
-          if(state != null) {
-              throw ResponseStatusException(HttpStatus.CONFLICT, "Cette adresse email est déjà utilisé.")
-          }
-          userState?.email = user.email
-          userState?.city = user.city
-          val updatedUser = repository.save(userState!!)
-          return updatedUser.toDomain()
+      val state = repository.findByPhoneOrEmail(user.email)
+      if (state != null) {
+          throw ResponseStatusException(HttpStatus.CONFLICT, "Cette adresse email est déjà utilisé.")
       }
+      userState.email = user.email
+      userState.phone = user.phone
+      userState.username = user.pseudo.ifBlank { userState.username }
+      userState.firstName = user.firstName
+      userState.lastName = user.lastName
+      userState.fullName = "${user.firstName.trim()} ${user.lastName.trim()}".trim()
+      val updatedUser = repository.save(userState)
+      return updatedUser.toDomain()
     }
 
-    @OptIn(ExperimentalTime::class)
     suspend fun updateUsername(
         id: Long,
         username : String

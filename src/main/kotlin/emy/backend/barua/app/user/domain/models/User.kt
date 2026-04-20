@@ -58,10 +58,10 @@ data class UserRequest(
     @NotNull
     val city : String,
     @NotNull
-    @field:NotBlank(message = "Le nom est obligatoire")
+    @field:NotBlank(message = "Le prénom est obligatoire")
     var firstName : String,
     @NotNull
-    @field:NotBlank(message = "Le prenom est obligatoire")
+    @field:NotBlank(message = "Le nom est obligatoire")
     var lastName : String,
 )
 

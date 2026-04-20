@@ -22,7 +22,7 @@ class UserEntity(
     @Column("last_name")
     var lastName: String,
     @Column("full_name")
-    val fullName: String,
+    var fullName: String,
     @Column("from_service")
     var fromService : String? = null,
     @Column("is_premium")

@@ -87,11 +87,12 @@ class UserController(
         try {
             val session = auth.user()
             val state: Boolean? = session?.second?.find{ true }
-            if (session?.first?.userId == userId || state == true ) {
-                val updated = userService.updateUser(userId,user)
+            if (session?.first?.userId == userId || state == true) {
+                val updated = userService.updateUser(userId, user)
                 ResponseEntity.ok(updated)
+            } else {
+                ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
             }
-            ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
         } finally {
             sentry.callToMetric(
                 MetricModel(
