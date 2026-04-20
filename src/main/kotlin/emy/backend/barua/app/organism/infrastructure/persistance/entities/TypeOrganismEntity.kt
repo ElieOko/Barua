@@ -1,5 +1,6 @@
 package emy.backend.barua.app.organism.infrastructure.persistance.entities
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import emy.backend.barua.app.organism.domain.model.TypeOrganism
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
@@ -14,6 +15,7 @@ class TypeOrganismEntity(
     val name: String,
     @Column("description")
     val description: String? = null,
+    @JsonIgnore
     @Column("is_active")
     val isActive: Boolean = true,
 )
