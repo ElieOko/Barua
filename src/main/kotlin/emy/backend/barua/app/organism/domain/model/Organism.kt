@@ -10,6 +10,12 @@ data class Organism(
     val isActive: Boolean,
 )
 
+data class OrganismDAO(
+    val id: Long?,
+    val type: TypeOrganism,
+    val name: String,
+    val description: String? = null,
+)
 fun Organism.toEntity()= OrganismEntity(
     id = this.id,
     typeId = this.typeId,
