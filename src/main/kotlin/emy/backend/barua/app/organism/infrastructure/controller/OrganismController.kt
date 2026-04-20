@@ -2,7 +2,6 @@ package emy.backend.barua.app.organism.infrastructure.controller
 
 import emy.backend.barua.app.organism.application.service.OrganismService
 import emy.backend.barua.app.organism.infrastructure.route.OrganismScope
-import emy.backend.barua.app.organism.infrastructure.route.OrganismTypeScope
 import emy.backend.barua.route.GlobalRoute
 import emy.backend.barua.security.monitoring.*
 import emy.backend.barua.utils.Mode
