@@ -1,9 +1,13 @@
 package emy.backend.barua.app.user.application.services
 
+import emy.backend.barua.app.organism.application.service.OrganismService
+import emy.backend.barua.app.organism.infrastructure.persistance.repository.OrganismRepository
 import emy.backend.barua.app.user.domain.models.*
 import emy.backend.barua.app.user.domain.models.request.*
 import emy.backend.barua.app.user.infrastructure.persistance.mapper.toDomain
 import emy.backend.barua.app.user.infrastructure.persistance.mapper.toEntity
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.AccountRepository
+import emy.backend.barua.app.user.infrastructure.persistance.repositories.AccountUserRepository
 import emy.backend.barua.app.user.infrastructure.persistance.repositories.UserRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -19,8 +23,12 @@ import org.springframework.web.server.*
 @Profile(Mode.DEV)
 class UserService(
     private val repository: UserRepository,
-    private val service: TypeAccountService,
-    private val auth: Auth
+    private val service : TypeAccountService,
+    private val organism : OrganismRepository,
+    private val account : AccountRepository,
+    private val auth: Auth,
+    private val multi : AccountUserRepository,
+    private val serviceMultiAccount: AccountUserService,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
     val name = "utilisateur"
@@ -53,7 +61,17 @@ class UserService(
         return userEntity?.toDomain()
     }
 
-
+    suspend fun changeAllow(userId : Long, allow : PermissionUser) = coroutineScope {
+        organism.findById(allow.organismId)?:throw ResponseStatusException(HttpStatus.NOT_FOUND, "Organism not found.")
+        account.findById(allow.profileId)?:throw ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found.")
+        if (allow.profileId == 5L) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ce type n'est pas prise en charge par votre compte")
+        val verify = multi.findByUserAndAccount(userId,allow.profileId)
+        if (verify == null) {
+            serviceMultiAccount.save(AccountUser(userId = userId, organismId = allow.organismId, accountId = allow.profileId))
+           return@coroutineScope true
+        }
+        false
+    }
     suspend fun updateUser(
         id: Long,
         user: UserRequestChange
