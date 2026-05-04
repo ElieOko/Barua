@@ -9,7 +9,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.util.concurrent.TimeUnit
 
 class RedisStorage {
-   private val log = LoggerFactory.getLogger(BaruaApplication::class.java)
+    private val log = LoggerFactory.getLogger(BaruaApplication::class.java)
     fun getRedisData(key : String = "foo") : String?{
         val connectionFactory = LettuceConnectionFactory()
         val template = RedisTemplate<String?, String?>()
@@ -32,7 +32,7 @@ class RedisStorage {
         template.delete(key)
         connectionFactory.destroy()
     }
-    fun storeRedisData(key: String, value : String, time : Long = 5){
+    fun storeRedisData(key: String, value : String, time : Long = 190340){
         val connectionFactory = LettuceConnectionFactory()
         val template = RedisTemplate<String?, String?>()
         connectionFactory.afterPropertiesSet()
