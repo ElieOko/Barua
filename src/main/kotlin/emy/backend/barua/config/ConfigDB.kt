@@ -13,7 +13,7 @@ import org.springframework.boot.r2dbc.autoconfigure.*
 )
 class DatabaseConfig {
 
-   /* @Bean(initMethod = "migrate")
+    @Bean(initMethod = "migrate")
     fun flyway(
         flywayProperties: FlywayProperties,
         r2dbcProperties: R2dbcProperties
@@ -28,5 +28,5 @@ class DatabaseConfig {
             .locations(*flywayProperties.locations.toTypedArray())
             .baselineOnMigrate(true)
             .load()
-    }*/
+    }
 }
