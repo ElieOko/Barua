@@ -1,6 +1,7 @@
 package emy.backend.barua.app.user.infrastructure.controller
 
 import emy.backend.barua.app.user.application.services.*
+import emy.backend.barua.app.user.domain.models.PermissionUserRequest
 import emy.backend.barua.app.user.domain.models.request.*
 import emy.backend.barua.route.*
 import emy.backend.barua.security.*
@@ -33,6 +34,45 @@ class UserController(
             val state: Boolean? = session?.second?.find{ true }
             when (state) {
                 true -> ApiResponse(userService.findAllUser().toList())
+                else -> ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
+            }
+        } finally {
+            sentry.callToMetric(
+                MetricModel(
+                    startNanos = startNanos,
+                    status = "200",
+                    route = "${request.method} /${request.requestURI}",
+                    countName = "api.user.getlistuser.count",
+                    distributionName = "api.user.getlistuser.latency"
+                )
+            )
+        }
+    }
+
+
+    @Operation(summary = "Change Roles")
+    @PutMapping("/protected/users/{userId}")
+    suspend fun changeAccount(
+        request: HttpServletRequest,
+        @PathVariable version: String,
+        @PathVariable userId: Long,
+        @RequestBody @Valid user : PermissionUserRequest
+        ) = coroutineScope {
+        val startNanos = System.nanoTime()
+        try {
+            val session = auth.user()
+            var stateChange = false
+            val state: Boolean? = session?.second?.find{ true }
+            when (state) {
+                true -> {
+                    val roles = user.roles
+                    if (roles.isNotEmpty()){
+                        roles.forEach { role -> stateChange = userService.changeAllow(userId,role) }
+                        if (!stateChange) ResponseEntity.status(404).body(mapOf("message" to "Permission deja presente"))
+                         ResponseEntity.status(201).body(mapOf("message" to "Permission has been changed successfully"))
+                    }
+                    ResponseEntity.status(404).body(mapOf("message" to "Permission not found."))
+                }
                 else -> ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
             }
         } finally {
