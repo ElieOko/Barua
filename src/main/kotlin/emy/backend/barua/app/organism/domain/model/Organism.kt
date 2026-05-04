@@ -10,9 +10,12 @@ data class Organism(
     val isActive: Boolean,
 )
 
+
+
 data class OrganismDAO(
     val id: Long?,
-    val type: TypeOrganism,
+    val city : String,
+    val type: TypeOrganism?,
     val name: String,
     val description: String? = null,
 )
