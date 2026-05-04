@@ -15,18 +15,37 @@ import org.springframework.web.bind.annotation.*
 import jakarta.servlet.http.*
 
 @RestController
-@RequestMapping("${GlobalRoute.ROOT}/{version}")
+@RequestMapping("${GlobalRoute.ROOT}/{version}/")
 @Profile("dev")
 class TypeAccountController(
     private val service: TypeAccountService,
     private val sentry: SentryService,
 ) {
     @Operation(summary = "List Of TypeAccounts")
-    @GetMapping(AccountTypeScope.PUBLIC,produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(AccountTypeScope.PROTECTED,produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun getAllTypeAccountE(request: HttpServletRequest, @PathVariable version: String): ApiResponse<List<TypeAccount>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
             ApiResponse(service.getAll().toList())
+        } finally {
+            sentry.callToMetric(
+                MetricModel(
+                    startNanos = startNanos,
+                    status = "200",
+                    route = "${request.method} /${request.requestURI}",
+                    countName = "api.typeaccount.getalltypeaccounte.count",
+                    distributionName = "api.typeaccount.getalltypeaccounte.latency"
+                )
+            )
+        }
+    }
+
+    @Operation(summary = "List Of TypeAccounts")
+    @GetMapping(AccountTypeScope.PUBLIC,produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun getAllAccountByKey(request: HttpServletRequest, @PathVariable version: String) = coroutineScope {
+        val startNanos = System.nanoTime()
+        try {
+            ApiResponse(service.groupByKey())
         } finally {
             sentry.callToMetric(
                 MetricModel(
