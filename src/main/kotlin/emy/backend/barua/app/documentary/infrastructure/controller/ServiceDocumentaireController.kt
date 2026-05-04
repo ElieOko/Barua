@@ -4,6 +4,7 @@ import com.google.api.client.util.Data.mapOf
 import emy.backend.barua.app.documentary.application.service.ServiceDocumentaireService
 import emy.backend.barua.app.documentary.domain.model.ServiceDocumentaire
 import emy.backend.barua.app.documentary.domain.model.request.ServiceDocumentaireRequest
+import emy.backend.barua.app.documentary.domain.model.request.toDomain
 import emy.backend.barua.route.GlobalRoute
 import emy.backend.barua.app.documentary.infrastructure.ensureDocumentaryAdmin
 import emy.backend.barua.app.documentary.infrastructure.route.ServiceDocumentaireScope
@@ -38,27 +39,11 @@ class ServiceDocumentaireController(
         try {
             ensureDocumentaryAdmin(auth)?.let { return it }
             val userId = auth.user()?.first?.userId!!
-            val data = ServiceDocumentaire(
-                documentId = request.documentId,
-                price = request.price,
-                deviseId = request.devise,
-                delayDayOpen = request.delayDayOpen,
-                isActive = request.isActive,
-                serviceDocumentaireId = null,
-                organismId = request.organismId,
-                userId = userId,
-                description = request.description,
-            )
-            val result = service.save(data) ?: return ResponseEntity.badRequest().body(
-                mapOf(
-                    "message" to "Document ou organisme émetteur invalide, ou combinaison déjà existante refusée par la base.",
-                ),
+            val result = service.save(request.toDomain(userId)) ?: return ResponseEntity.badRequest().body(
+                mapOf("message" to "Document ou organisme émetteur invalide, ou combinaison déjà existante refusée par la base."),
             )
             return ResponseEntity.status(201).body(
-                mapOf(
-                    "serviceDocumentaire" to result,
-                    "message" to "Enregistrement réussi",
-                ),
+                mapOf("serviceDocumentaire" to result, "message" to "Enregistrement réussi")
             )
         } finally {
             sentry.callToMetric(
@@ -84,28 +69,10 @@ class ServiceDocumentaireController(
         try {
             ensureDocumentaryAdmin(auth)
             val userId = auth.user()?.first?.userId!!
-            val data = ServiceDocumentaire(
-                documentId = request.documentId,
-                price = request.price,
-                deviseId = request.devise,
-                delayDayOpen = request.delayDayOpen,
-                isActive = request.isActive,
-                serviceDocumentaireId = null,
-                organismId = request.organismId,
-                userId = userId,
-                description = request.description,
+            val result = service.update(id, request.toDomain(userId)) ?: ResponseEntity.badRequest().body(
+                mapOf("message" to "Service documentaire introuvable, ou document / organisme invalide, ou contrainte d'unicité violée."),
             )
-            val result = service.update(id, data) ?: ResponseEntity.badRequest().body(
-                mapOf(
-                    "message" to "Service documentaire introuvable, ou document / organisme invalide, ou contrainte d'unicité violée.",
-                ),
-            )
-            ResponseEntity.ok(
-                mapOf(
-                    "serviceDocumentaire" to result,
-                    "message" to "Modification réussie",
-                ),
-            )
+            ResponseEntity.ok(mapOf("serviceDocumentaire" to result, "message" to "Modification réussie"))
         } finally {
             sentry.callToMetric(
                 MetricModel(
