@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException
 class ServiceDocumentaireService(
     private val repository: ServiceDocumentaireRepository,
     private val documentService: DocumentService,
-    private val organismService: OrganismService,
+    private val organismService: OrganismService
 ) {
     suspend fun save(data: ServiceDocumentaire): ServiceDocumentaire? {
         documentService.findById(data.documentId)
