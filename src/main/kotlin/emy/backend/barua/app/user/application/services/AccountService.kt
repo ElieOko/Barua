@@ -39,6 +39,7 @@ class AccountService(
       if (data.isEmpty()) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ce compte et type ne sont pas prise en charge.")
       return data.first().toDomain()
     }
-    suspend fun isAllow(accountId : Long):Boolean = if (accountId == 19L || accountId == 18L) true else false
-
+    suspend fun isAllow(accountId : Long):Boolean = accountId == 5L
+    suspend fun isAllowCommune(accountId : Long):Boolean = accountId == 3L
+    suspend fun isAllowMinistere(accountId : Long):Boolean = accountId == 4L
 }
