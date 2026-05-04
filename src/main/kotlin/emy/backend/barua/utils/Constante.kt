@@ -14,3 +14,10 @@ object MessageResponse{
     const val PAYMENT_SUCCESS = "Merci ! Paiement confirmé, Profitez pleinement de votre abonnement sur CasaNayo \uD83C\uDF89"
     const val PAYMENT_CANCEL_TIMEOUT = "Délai de paiement expiré,Votre paiement n’a pas abouti."
 }
+
+enum class TypeOrganismInstance{
+    COMMUNE,
+    MAIRIE,
+    MINISTERE,
+    SERVICE_PUBLIC,
+}
