@@ -51,7 +51,7 @@ class AuthController(
             if (!state) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mot de passe invalide.")
             val data = authService.register(userSystem)
             val generator = 6.generateOtp()
-            redis.storeRedisData(data?.email!!,generator,1140)
+            redis.storeRedisData(data?.email!!+1.toString(),generator,1140)
             val sendState = senderMailAuth.sendMail(to = data.email!!,otp = generator, time =  "4")
             log.info("$sendState************")
             val response = mapOf(
@@ -121,42 +121,6 @@ class AuthController(
         }
     }
 
-//    @PostMapping("/api/{version}/public/callback/google")
-//    suspend fun callBackGoogle(request: HttpServletRequest,@RequestBody body: Any?){
-//        val startNanos = System.nanoTime()
-//        try {
-//
-//        } finally {
-//            sentry.callToMetric(
-//                MetricModel(
-//                    startNanos = startNanos,
-//                    status = "200",
-//                    route = "${request.method} /${request.requestURI}",
-//                    countName = "api.auth.callBackGoogle.count",
-//                    distributionName = "api.auth.callBackGoogle.latency"
-//                )
-//            )
-//        }
-//    }
-//
-//    @PostMapping("/api/{version}/public/callback/apple")
-//    suspend fun callBackApple(request: HttpServletRequest,@RequestBody body: Any?){
-//        val startNanos = System.nanoTime()
-//        try {
-//
-//        } finally {
-//            sentry.callToMetric(
-//                MetricModel(
-//                    startNanos = startNanos,
-//                    status = "200",
-//                    route = "${request.method} /${request.requestURI}",
-//                    countName = "api.auth.callBackApple.count",
-//                    distributionName = "api.auth.callBackApple.latency"
-//                )
-//            )
-//        }
-//    }
-
     @GetMapping("/api/auth/google")
     fun redirectToGoogle(response: HttpServletResponse) {
         response.sendRedirect("/oauth2/authorization/google")
@@ -166,12 +130,11 @@ class AuthController(
     @PostMapping("/api/{version}/public/otp/validate")
     suspend fun validationAccountOTP(
     request: HttpServletRequest,
-    @RequestBody @Valid identifier : VerifyRequest, @PathVariable version: String
-) = coroutineScope {
+    @RequestBody @Valid identifier : VerifyRequest, @PathVariable version: String) = coroutineScope {
         val startNanos = System.nanoTime()
         val redis = RedisStorage()
         try {
-            val result = redis.getRedisData(identifier.identifier) ?: throw ResponseStatusException(
+            val result = redis.getRedisData(identifier.identifier+1.toString()) ?: throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Indentifiant invalide !"
             )
@@ -194,6 +157,7 @@ class AuthController(
             )
         }
     }
+
     @Operation(summary = "OTP activation send code")
     @PostMapping("/api/{version}/public/otp/generate")
     suspend fun generateKeyOTP(request: HttpServletRequest,
@@ -205,7 +169,7 @@ class AuthController(
             if (!isEmailValid(user.identifier)) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Mail invalid!.")
             val result = userRepository.findByPhoneOrEmail(user.identifier)?:throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Identifiant invalide !.")
             val generator = 6.generateOtp()
-            redis.storeRedisData(user.identifier,generator,1140)
+            redis.storeRedisData(user.identifier+1.toString(),generator,190340)
             senderMailAuth.sendMail(to = result.email!!,otp = generator, time =  "4")
             val message = mapOf("message" to "Un code de validation a été envoyé cet adresse")
              ResponseEntity.ok(message)
