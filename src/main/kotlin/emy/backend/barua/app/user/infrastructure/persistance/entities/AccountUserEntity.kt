@@ -13,14 +13,11 @@ class AccountUserEntity(
     @Column("account_id")
     val accountId: Long,
     @Column("user_id")
-    val userId: Long,
-    @Column("organism_id")
-    val organismId: Long? = null,
+    val userId: Long
 )
 
 fun AccountUserEntity.toDomain() = AccountUser(
     id = this.id,
     accountId = this.accountId,
     userId = this.userId,
-    organismId = this.organismId,
 )
