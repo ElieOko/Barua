@@ -24,7 +24,30 @@ class Auth(
         }
         return null
     }
-    suspend fun userStom(principal: Principal): UserDto? {
+
+    suspend fun userCommune(): Pair<UserDto?, MutableList<Boolean>>?{
+        val allowList = mutableListOf<Boolean>()
+        SecurityContextHolder.getContext().authentication?.name?.let {
+            val userId = it.toInt(16).toLong()
+            val data = repository.findById(userId)
+            mutlipleAccount.findMultipleAccountUser(userId).forEach{c->allowList.add(account.isAllowCommune(c.accountId))}
+            return Pair(data?.toDomain(),allowList)
+        }
+        return null
+    }
+
+    suspend fun userMinistere(): Pair<UserDto?, MutableList<Boolean>>?{
+        val allowList = mutableListOf<Boolean>()
+        SecurityContextHolder.getContext().authentication?.name?.let {
+            val userId = it.toInt(16).toLong()
+            val data = repository.findById(userId)
+            mutlipleAccount.findMultipleAccountUser(userId).forEach{c->allowList.add(account.isAllowMinistere(c.accountId))}
+            return Pair(data?.toDomain(),allowList)
+        }
+        return null
+    }
+
+    suspend fun userStomp(principal: Principal): UserDto? {
         val data = repository.findById(principal.name.toInt().toLong())
         return data?.toDomain()
     }
