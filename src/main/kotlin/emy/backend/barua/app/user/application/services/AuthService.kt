@@ -1,6 +1,12 @@
 package emy.backend.barua.app.user.application.services
 
 import emy.backend.barua.adaptater.provider.twilio.*
+import emy.backend.barua.app.organism.application.service.OrganismService
+import emy.backend.barua.app.organism.domain.model.OrganismDAO
+import emy.backend.barua.app.organism.infrastructure.persistance.entities.toDomain
+import emy.backend.barua.app.organism.infrastructure.persistance.repository.CityRepository
+import emy.backend.barua.app.organism.infrastructure.persistance.repository.OrganismRepository
+import emy.backend.barua.app.organism.infrastructure.persistance.repository.TypeOrganismRepository
 import emy.backend.barua.app.user.domain.models.*
 import emy.backend.barua.app.user.domain.models.request.*
 import emy.backend.barua.app.user.infrastructure.persistance.entities.AccountDTO
@@ -33,6 +39,9 @@ class AuthService(
     private val serviceMultiAccount: AccountUserService,
     private val typeAccountService: TypeAccountService,
     private val accountService: AccountService,
+    private val organism: OrganismRepository,
+    private val typeOrganism: TypeOrganismRepository,
+    private val city: CityRepository,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
     data class TokenPair(
@@ -53,35 +62,54 @@ class AuthService(
         }
         log.info("Creating user ${user.userId}")
         val savedEntity = userRepository.save(entity)
+        serviceMultiAccount.save(AccountUser(userId = savedEntity.userId!!, accountId = 2))
         val userData : UserDto = savedEntity.toDomain()
         return userData
     }
-    suspend fun login(identifier: String, password: String): Pair<TokenPair, UserFullDTO>  =
-        coroutineScope {
-            var validIdentifier = normalizeAndValidatePhoneNumberUniversal(identifier)
-            if (isEmailValid(identifier)) validIdentifier = identifier
-            val user = userRepository.findByPhoneOrEmail(validIdentifier.toString()) ?: throw ResponseStatusException(HttpStatusCode.valueOf(403), "Invalid credentials.")
-            if(!hashEncoder.matches(password, user.password.toString())) throw ResponseStatusException(HttpStatusCode.valueOf(403), "Invalid credentials.")
-            log.info("Logging into user ${user.userId}")
-            val newAccessToken = jwtService.generateAccessToken(user.userId!!.toHexString())
-            val newRefreshToken = jwtService.generateRefreshToken(user.userId.toHexString())
-            val accounts = serviceMultiAccount.getAll().filter { it.userId == user.userId }.toList()
-            val accountMultiple: List<AccountDTO> =  accounts.map {
-                val data = accountService.findByIdAccount(it.accountId)
-                AccountDTO(
-                    id = data.id,
-                    name = data.name,
-                    typeAccount = typeAccountService.findByIdTypeAccount(data.typeAccountId)
-                )
-            }.toList()
-            val profile = userRepository.findById(user.userId)
-//            storeRefreshToken(user.userId, newRefreshToken)
-            val result = Pair(
-                TokenPair(accessToken = newAccessToken, refreshToken = newRefreshToken),
-                UserFullDTO(user.toDomain(), accountMultiple)
+    suspend fun login(identifier: String, password: String): Pair<TokenPair, UserFullDTO>  = coroutineScope {
+        var validIdentifier = normalizeAndValidatePhoneNumberUniversal(identifier)
+        val accountMultiple = mutableListOf<AccountUserDTO>()
+        if (isEmailValid(identifier)) validIdentifier = identifier
+        val user = userRepository.findByPhoneOrEmail(validIdentifier.toString()) ?: throw ResponseStatusException(HttpStatusCode.valueOf(403), "Invalid credentials.")
+        if(!hashEncoder.matches(password, user.password.toString())) throw ResponseStatusException(HttpStatusCode.valueOf(403), "Invalid credentials.")
+        log.info("Logging into user ${user.userId}")
+        val newAccessToken = jwtService.generateAccessToken(user.userId!!.toHexString())
+        val newRefreshToken = jwtService.generateRefreshToken(user.userId.toHexString())
+        val accounts = serviceMultiAccount.getAll().filter { it.userId == user.userId }.toList()
+        accounts.forEach {
+            var detail : OrganismDAO? = null
+            val data = accountService.findByIdAccount(it.accountId)
+
+            val st = organism.findById(it.organismId?:0L)
+
+            val ty = typeOrganism.findById(st?.typeId?:0L)
+            if (st != null){
+                if (it.organismId != null){
+                    detail = OrganismDAO(
+                        id = st.id,
+                        name = st.name,
+                        city = (city.findById(st.cityId?:0L)?.name?:""),
+                        type = ty?.toDomain(),
+                        description = st.description
+                    )
+                }
+            }
+
+            accountMultiple.add(AccountUserDTO(
+                account = AccountDTO(id = data.id, name = data.name, typeAccount = typeAccountService.findByIdTypeAccount(data.typeAccountId)),
+                organism= detail)
             )
-            result
+            }
+
+        val profile = userRepository.findById(user.userId)
+//            storeRefreshToken(user.userId, newRefreshToken)
+        val result = Pair(
+            TokenPair(accessToken = newAccessToken, refreshToken = newRefreshToken),
+            UserFullDTO(user.toDomain(), accountMultiple)
+        )
+        result
      }
+
     suspend fun generateOTP(identifier: String): Triple<String?, String, String> {
        var validIdentifier = normalizeAndValidatePhoneNumberUniversal(identifier)
        if (isEmailValid(identifier)) validIdentifier = identifier
