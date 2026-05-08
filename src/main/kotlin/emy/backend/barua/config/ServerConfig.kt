@@ -27,11 +27,12 @@ class ServerConfig(
     fun init() {
         log.info("✅ ServerConfig is active")
     }
+
     @Bean
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
       return httpSecurity
             .csrf { csrf -> csrf.disable() }
-          .cors { it.disable() }
+          .cors {  }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { configurer ->
                 configurer
@@ -42,6 +43,18 @@ class ServerConfig(
           .httpBasic { it.disable() }
           .formLogin { it.disable() }
             .build()
+    }
+    @Bean
+    fun corsConfigurer(): WebMvcConfigurer {
+        return object : WebMvcConfigurer {
+            override fun addCorsMappings(registry: CorsRegistry) {
+                registry.addMapping("/**")
+                    .allowedOrigins("https://baruaofficiel.com")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true)
+            }
+        }
     }
     @Bean
     fun webClientBuilder(): WebClient.Builder {
