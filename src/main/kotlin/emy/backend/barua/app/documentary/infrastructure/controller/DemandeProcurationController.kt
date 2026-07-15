@@ -157,7 +157,7 @@ class DemandeProcurationController(
     ): ResponseEntity<Map<String, Any?>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)?.let { return@coroutineScope it }
+            ensureDocumentaryAdmin(auth)
             ResponseEntity.ok(mapOf("demandes" to service.findAll()))
         } finally {
             sentry.callToMetric(
@@ -182,7 +182,7 @@ class DemandeProcurationController(
     ): ResponseEntity<Map<String, Any?>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)?.let { return@coroutineScope it }
+            ensureDocumentaryAdmin(auth)
             val adminUserId = auth.user()?.first?.userId
             val result = service.changeStatus(
                 demandeId = id,
@@ -217,7 +217,7 @@ class DemandeProcurationController(
     ): ResponseEntity<Map<String, Any?>> = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)?.let { return@coroutineScope it }
+            ensureDocumentaryAdmin(auth)
             ResponseEntity.ok(mapOf("historique" to historiqueService.findAllDto()))
         } finally {
             sentry.callToMetric(

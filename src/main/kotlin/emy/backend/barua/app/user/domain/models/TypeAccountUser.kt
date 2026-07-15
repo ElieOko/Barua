@@ -5,10 +5,13 @@ import emy.backend.barua.app.user.infrastructure.persistance.entities.AccountUse
 data class AccountUser(
     val id: Long? = null,
     val userId: Long,
-    val accountId:Long
+    val accountId: Long,
+    val organismId: Long? = null,
 )
+
 fun AccountUser.toEntity() = AccountUserEntity(
     id = this.id,
     accountId = this.accountId,
     userId = this.userId,
+    organismId = this.organismId,
 )
