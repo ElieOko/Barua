@@ -71,6 +71,7 @@ class AuthService(
         val accountMultiple = mutableListOf<AccountUserDTO>()
         if (isEmailValid(identifier)) validIdentifier = identifier
         val user = userRepository.findByPhoneOrEmail(validIdentifier.toString()) ?: throw ResponseStatusException(HttpStatusCode.valueOf(403), "Invalid credentials.")
+        if (!user.isValid) throw ResponseStatusException(HttpStatusCode.valueOf(403), "Ce compte n'est pas vérifier.")
         if(!hashEncoder.matches(password, user.password.toString())) throw ResponseStatusException(HttpStatusCode.valueOf(403), "Invalid credentials.")
         log.info("Logging into user ${user.userId}")
         val newAccessToken = jwtService.generateAccessToken(user.userId!!.toHexString())

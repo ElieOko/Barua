@@ -55,7 +55,7 @@ class DocumentTypeController(
     ): ResponseEntity<Map<String, Any?>> {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)?.let { return it }
+            val userConnect = ensureDocumentaryAdmin(auth)
             val data = DocumentType(
                 name = request.name,
                 description = request.description,

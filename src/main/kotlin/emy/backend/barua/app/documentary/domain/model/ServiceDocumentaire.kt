@@ -1,6 +1,8 @@
 package emy.backend.barua.app.documentary.domain.model
 
 import emy.backend.barua.app.documentary.infrastructure.persistence.entity.ServiceDocumentaireEntity
+import emy.backend.barua.app.organism.domain.model.Organism
+import emy.backend.barua.app.organism.domain.model.OrganismDAO
 
 data class ServiceDocumentaire(
     var serviceDocumentaireId: Long? = null,
@@ -23,4 +25,14 @@ fun ServiceDocumentaire.toEntity()=  ServiceDocumentaireEntity(
     description =this.description,
     delayDayOpen = this.delayDayOpen,
     isActive = this.isActive
+)
+
+data class ServiceDocumentaireDTO(
+    var serviceDocumentaireId: Long? = null,
+    val document : Document,
+    val organism: OrganismDAO,
+    val price: Double,
+    val deviseId: Long,
+    val delayDayOpen: String,
+    val description: String? = null,
 )

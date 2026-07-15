@@ -71,10 +71,10 @@ class DocumentController(
         @PathVariable version: String,
         @PathVariable id: Long,
         @Valid @RequestBody request: DocumentRequest,
-    ): ResponseEntity<Map<String, Any?>> {
+    ): Any {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)?.let { return it }
+            val userConnect = ensureDocumentaryAdmin(auth)
             if (documentTypeService.findById(request.documentTypeId) == null) {
                 return ResponseEntity.badRequest().body(mapOf("message" to "Ce type de document est inexistant."))
             }

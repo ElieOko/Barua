@@ -29,5 +29,6 @@ fun OrganismEntity.toDomain()= Organism(
     typeId = this.typeId,
     name = this.name,
     description = this.description,
+    cityId = this.cityId,
     isActive = this.isActive
 )

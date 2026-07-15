@@ -6,6 +6,7 @@ data class Organism(
     val id: Long?,
     val typeId: Long,
     val name: String,
+    val cityId: Long? = null,
     val description: String? = null,
     val isActive: Boolean,
 )

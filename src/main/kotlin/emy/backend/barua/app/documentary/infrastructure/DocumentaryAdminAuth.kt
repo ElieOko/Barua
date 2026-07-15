@@ -1,16 +1,16 @@
 package emy.backend.barua.app.documentary.infrastructure
 
 import emy.backend.barua.security.Auth
+import kotlinx.coroutines.coroutineScope
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
+import org.springframework.web.server.ResponseStatusException
 
 /**
  * Même règle que les routes utilisateurs « admin » : premier compte lié avec [AccountService.isAllow].
  */
-suspend fun ensureDocumentaryAdmin(auth: Auth): ResponseEntity<Map<String, Any?>>? {
-    val session = auth.user()
-        ?: return ResponseEntity.status(401).body(mapOf("message" to "Authentification requise."))
-    if (session.second.find { true } != true) {
-        return ResponseEntity.status(403).body(mapOf("message" to "Accès réservé aux administrateurs."))
-    }
-    return null
+suspend fun ensureDocumentaryAdmin(auth: Auth) = coroutineScope {
+    val session = auth.user() ?: throw ResponseStatusException(HttpStatusCode.valueOf(403), "Authentification requise.")
+    if (session.second.find { it } != true) throw ResponseStatusException(HttpStatusCode.valueOf(403),"Accès réservé aux administrateurs.")
+    session
 }

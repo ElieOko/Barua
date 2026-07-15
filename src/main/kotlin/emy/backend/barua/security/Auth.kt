@@ -19,7 +19,9 @@ class Auth(
         SecurityContextHolder.getContext().authentication?.name?.let {
             val userId = it.toInt(16).toLong()
             val data = repository.findById(userId)
-            mutlipleAccount.findMultipleAccountUser(userId).forEach{c->allowList.add(account.isAllow(c.accountId))}
+            mutlipleAccount.findMultipleAccountUser(userId).forEach{c->
+                allowList.add(account.isAllow(c.accountId))
+            }
             return Pair(data?.toDomain(),allowList)
         }
         return null

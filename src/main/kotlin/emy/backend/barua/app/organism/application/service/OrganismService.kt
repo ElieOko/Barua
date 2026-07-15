@@ -20,13 +20,13 @@ class OrganismService(
     suspend fun findAll() = coroutineScope {
         val items = mutableListOf<OrganismDAO>()
         repository.findAll().collect {
-            val c = (city.findById(it.cityId?:0L))?:""
+            val c = (city.findById(it.cityId?:0L))?.name?:""
             items.add(
                 OrganismDAO(
                     id = it.id,
                     type = typeOrganism.findById(it.typeId)!!.toDomain(),
                     name = it.name,
-                    city = c.toString(),
+                    city = c,
                     description = it.description,
                 )
             )

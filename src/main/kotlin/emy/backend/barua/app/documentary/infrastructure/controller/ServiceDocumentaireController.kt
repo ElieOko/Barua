@@ -34,17 +34,22 @@ class ServiceDocumentaireController(
         httpRequest: HttpServletRequest,
         @Valid @RequestBody request: ServiceDocumentaireRequest,
         @PathVariable version: String,
-    ): ResponseEntity<Map<String, Any?>> {
+    ) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)?.let { return it }
-            val userId = auth.user()?.first?.userId!!
-            val result = service.save(request.toDomain(userId)) ?: return ResponseEntity.badRequest().body(
-                mapOf("message" to "Document ou organisme émetteur invalide, ou combinaison déjà existante refusée par la base."),
-            )
-            return ResponseEntity.status(201).body(
-                mapOf("serviceDocumentaire" to result, "message" to "Enregistrement réussi")
-            )
+            val session = auth.user()
+            val userPrivilege = session?.second?.find { it } == true
+            val userConnect = session?.first
+            val userId = userConnect?.userId
+            if (userPrivilege && userId != null) {
+                val result = service.save(request.toDomain(userId)) ?: ResponseEntity.badRequest().body(
+                    mapOf("message" to "Document ou organisme émetteur invalide, ou combinaison déjà existante refusée par la base."),
+                )
+                ResponseEntity.status(201).body(mapOf("serviceDocumentaire" to result, "message" to "Enregistrement réussi"))
+            } else{
+                ResponseEntity.badRequest().body(mapOf("message" to "Accès réservé aux administrateurs."),)
+            }
+
         } finally {
             sentry.callToMetric(
                 MetricModel(
@@ -64,15 +69,21 @@ class ServiceDocumentaireController(
         @PathVariable version: String,
         @PathVariable id: Long,
         @Valid @RequestBody request: ServiceDocumentaireRequest,
-    ): ResponseEntity<Map<String, Any?>> = coroutineScope {
+    ) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            ensureDocumentaryAdmin(auth)
-            val userId = auth.user()?.first?.userId!!
-            val result = service.update(id, request.toDomain(userId)) ?: ResponseEntity.badRequest().body(
-                mapOf("message" to "Service documentaire introuvable, ou document / organisme invalide, ou contrainte d'unicité violée."),
-            )
-            ResponseEntity.ok(mapOf("serviceDocumentaire" to result, "message" to "Modification réussie"))
+            val session = auth.user()
+            val userPrivilege = session?.second?.find { it } == true
+            val userConnect = session?.first
+            val userId = userConnect?.userId
+            if (userPrivilege && userId != null) {
+                val result = service.update(id, request.toDomain(userId)) ?: ResponseEntity.badRequest().body(
+                    mapOf("message" to "Service documentaire introuvable, ou document / organisme invalide, ou contrainte d'unicité violée."),
+                )
+                ResponseEntity.ok(mapOf("serviceDocumentaire" to result, "message" to "Modification réussie"))
+            } else ResponseEntity.badRequest().body(mapOf("message" to "Accès réservé aux administrateurs."),)
+
+
         } finally {
             sentry.callToMetric(
                 MetricModel(
@@ -93,7 +104,7 @@ class ServiceDocumentaireController(
     ) = coroutineScope {
         val startNanos = System.nanoTime()
         try {
-            ResponseEntity.ok(mapOf("serviceDocumentaries" to service.findAll()))
+            ResponseEntity.ok(mapOf("services" to service.findAll()))
         } finally {
             sentry.callToMetric(
                 MetricModel(
@@ -102,6 +113,28 @@ class ServiceDocumentaireController(
                     route = "${request.method} /${request.requestURI}",
                     countName = "api.servicedocumentaire.getall.count",
                     distributionName = "api.servicedocumentaire.getall.latency",
+                ),
+            )
+        }
+    }
+
+    @GetMapping(ServiceDocumentaireScope.PUBLIC+"/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun detail(
+        request: HttpServletRequest,
+        @PathVariable version: String,
+        @PathVariable id: Long,
+    ) = coroutineScope {
+        val startNanos = System.nanoTime()
+        try {
+            ResponseEntity.ok(mapOf("service" to service.detail(id)))
+        } finally {
+            sentry.callToMetric(
+                MetricModel(
+                    startNanos = startNanos,
+                    status = "200",
+                    route = "${request.method} /${request.requestURI}",
+                    countName = "api.servicedocumentaire.detail.count",
+                    distributionName = "api.servicedocumentaire.detail.latency",
                 ),
             )
         }
