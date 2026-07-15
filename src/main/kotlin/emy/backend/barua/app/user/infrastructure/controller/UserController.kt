@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("${GlobalRoute.ROOT}/{version}")
 class UserController(
     private val userService : UserService,
+    private val accountUserService: AccountUserService,
     private val auth: Auth,
     private val sentry : SentryService
 ) {
@@ -102,6 +103,39 @@ class UserController(
                     countName = "api.user.updateuser.count",
                     distributionName = "api.user.updateuser.latency"
                 )
+            )
+        }
+    }
+
+    @Operation(summary = "Attribuer un rôle à un utilisateur")
+    @PostMapping("/protected/users/roles", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun assignRole(
+        request: HttpServletRequest,
+        @Valid @RequestBody body: AssignAccountUserRequest,
+        @PathVariable version: String,
+    ) = coroutineScope {
+        val startNanos = System.nanoTime()
+        try {
+            val session = auth.user()
+            val state: Boolean? = session?.second?.find { true }
+            when (state) {
+                true -> ResponseEntity.status(201).body(
+                    mapOf(
+                        "accountUser" to accountUserService.assignRole(body),
+                        "message" to "Rôle attribué avec succès",
+                    ),
+                )
+                else -> ResponseEntity.status(403).body(mapOf("message" to "Accès non autorisé"))
+            }
+        } finally {
+            sentry.callToMetric(
+                MetricModel(
+                    startNanos = startNanos,
+                    status = "200",
+                    route = "${request.method} /${request.requestURI}",
+                    countName = "api.user.assignrole.count",
+                    distributionName = "api.user.assignrole.latency",
+                ),
             )
         }
     }
