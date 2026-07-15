@@ -6,14 +6,21 @@ data class DemandeProcuration(
     var demandeId: Long? = null,
     val userId: Long,
     val serviceDocumentaireId: Long,
-    val status: String = StatutDemandeProcuration.EN_ATTENTE.name,
+    val statusId: Long,
     val commentaire: String? = null,
+    val fullName: String? = null,
+    val numberIdentity: String? = null,
+    val phone: String? = null,
+    val pieces: List<DemandeProcurationPiece> = emptyList(),
 )
 
 fun DemandeProcuration.toEntity() = DemandeProcurationEntity(
     id = this.demandeId,
     userId = this.userId,
     serviceDocumentaireId = this.serviceDocumentaireId,
-    status = this.status,
-    commentaire = this.commentaire
+    statusId = this.statusId,
+    commentaire = this.commentaire,
+    fullName = this.fullName,
+    numberIdentity = this.numberIdentity,
+    phone = this.phone,
 )

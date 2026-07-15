@@ -53,3 +53,14 @@ fun base64ToMultipartFile(
 
     return Base64DecodedMultipartFile(imageBytes, fieldName, fileName, mimeType)
 }
+
+fun bufferMultipartFile(file: MultipartFile): MultipartFile {
+    val originalFilename = file.originalFilename?.takeIf { it.isNotBlank() }
+        ?: "file_${System.currentTimeMillis()}_${(0..999999).random()}"
+    return Base64DecodedMultipartFile(
+        content = file.bytes,
+        headerName = file.name,
+        originalFileName = originalFilename,
+        mimeType = file.contentType ?: "application/octet-stream",
+    )
+}
